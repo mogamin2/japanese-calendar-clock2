@@ -121,6 +121,127 @@
             text-align: center;
         }
 
+        /* ポモドーロタイマー */
+        .pomodoro-panel {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 8px;
+        }
+
+        .pomodoro-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .pomodoro-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #93c5fd;
+        }
+
+        .pomodoro-count {
+            font-size: 0.8rem;
+            color: #fde047;
+        }
+
+        .pomodoro-display {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .pomodoro-time {
+            font-size: 2.5rem;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: white;
+        }
+
+        .pomodoro-phase {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+
+        .pomodoro-phase.work {
+            color: #f87171;
+        }
+
+        .pomodoro-phase.break {
+            color: #4ade80;
+        }
+
+        .pomodoro-phase.long-break {
+            color: #60a5fa;
+        }
+
+        .pomodoro-controls {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .pomodoro-btn {
+            padding: 6px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pomodoro-btn.start {
+            background: #22c55e;
+            color: white;
+        }
+
+        .pomodoro-btn.pause {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .pomodoro-btn.reset {
+            background: #64748b;
+            color: white;
+        }
+
+        .pomodoro-btn:hover {
+            opacity: 0.85;
+            transform: scale(1.02);
+        }
+
+        .pomodoro-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 24px 48px;
+            border-radius: 12px;
+            text-align: center;
+            z-index: 1000;
+            display: none;
+            animation: pulse 0.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { box-shadow: 0 0 20px rgba(253, 224, 71, 0.5); }
+            to { box-shadow: 0 0 40px rgba(253, 224, 71, 0.8); }
+        }
+
+        .pomodoro-notification h3 {
+            font-size: 1.5rem;
+            color: #fde047;
+            margin-bottom: 8px;
+        }
+
+        .pomodoro-notification p {
+            color: white;
+            margin-bottom: 12px;
+        }
+
         .time {
             font-size: 4.6rem;
             font-weight: bold;
@@ -540,7 +661,29 @@
                         <div class="holiday-today" id="holiday-today"></div>
                     </div>
                 </div>
+                <!-- ポモドーロタイマー -->
+                <div class="pomodoro-panel">
+                    <div class="pomodoro-header">
+                        <span class="pomodoro-title">🍅 ポモドーロ</span>
+                        <span class="pomodoro-count" id="pomodoro-count">完了: 0</span>
+                    </div>
+                    <div class="pomodoro-display">
+                        <div class="pomodoro-time" id="pomodoro-time">25:00</div>
+                        <div class="pomodoro-phase work" id="pomodoro-phase">作業時間</div>
+                    </div>
+                    <div class="pomodoro-controls">
+                        <button class="pomodoro-btn start" id="pomodoro-start" onclick="togglePomodoro()">開始</button>
+                        <button class="pomodoro-btn reset" onclick="resetPomodoro()">リセット</button>
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <!-- 通知オーバーレイ -->
+        <div class="pomodoro-notification" id="pomodoro-notification">
+            <h3 id="notification-title">🍅 完了！</h3>
+            <p id="notification-message">お疲れさまでした</p>
+            <button class="pomodoro-btn start" onclick="dismissNotification()">OK</button>
         </div>
 
         <!-- メインカレンダー -->
@@ -611,7 +754,82 @@
             '2026-9-23': '秋分の日',
             '2026-10-12': 'スポーツの日',
             '2026-11-3': '文化の日',
-            '2026-11-23': '勤労感謝の日'
+            '2026-11-23': '勤労感謝の日',
+            // 2027年
+            '2027-1-1': '元日',
+            '2027-1-11': '成人の日',
+            '2027-2-11': '建国記念の日',
+            '2027-2-23': '天皇誕生日',
+            '2027-3-21': '春分の日',
+            '2027-3-22': '振替休日',
+            '2027-4-29': '昭和の日',
+            '2027-5-3': '憲法記念日',
+            '2027-5-4': 'みどりの日',
+            '2027-5-5': 'こどもの日',
+            '2027-7-19': '海の日',
+            '2027-8-11': '山の日',
+            '2027-9-20': '敬老の日',
+            '2027-9-23': '秋分の日',
+            '2027-10-11': 'スポーツの日',
+            '2027-11-3': '文化の日',
+            '2027-11-23': '勤労感謝の日',
+            // 2028年
+            '2028-1-1': '元日',
+            '2028-1-10': '成人の日',
+            '2028-2-11': '建国記念の日',
+            '2028-2-23': '天皇誕生日',
+            '2028-3-20': '春分の日',
+            '2028-4-29': '昭和の日',
+            '2028-5-3': '憲法記念日',
+            '2028-5-4': 'みどりの日',
+            '2028-5-5': 'こどもの日',
+            '2028-7-17': '海の日',
+            '2028-8-11': '山の日',
+            '2028-9-18': '敬老の日',
+            '2028-9-22': '秋分の日',
+            '2028-10-9': 'スポーツの日',
+            '2028-11-3': '文化の日',
+            '2028-11-23': '勤労感謝の日',
+            // 2029年
+            '2029-1-1': '元日',
+            '2029-1-8': '成人の日',
+            '2029-2-11': '建国記念の日',
+            '2029-2-12': '振替休日',
+            '2029-2-23': '天皇誕生日',
+            '2029-3-20': '春分の日',
+            '2029-4-29': '昭和の日',
+            '2029-4-30': '振替休日',
+            '2029-5-3': '憲法記念日',
+            '2029-5-4': 'みどりの日',
+            '2029-5-5': 'こどもの日',
+            '2029-7-16': '海の日',
+            '2029-8-11': '山の日',
+            '2029-9-17': '敬老の日',
+            '2029-9-23': '秋分の日',
+            '2029-9-24': '振替休日',
+            '2029-10-8': 'スポーツの日',
+            '2029-11-3': '文化の日',
+            '2029-11-23': '勤労感謝の日',
+            // 2030年
+            '2030-1-1': '元日',
+            '2030-1-14': '成人の日',
+            '2030-2-11': '建国記念の日',
+            '2030-2-23': '天皇誕生日',
+            '2030-3-20': '春分の日',
+            '2030-4-29': '昭和の日',
+            '2030-5-3': '憲法記念日',
+            '2030-5-4': 'みどりの日',
+            '2030-5-5': 'こどもの日',
+            '2030-5-6': '振替休日',
+            '2030-7-15': '海の日',
+            '2030-8-11': '山の日',
+            '2030-8-12': '振替休日',
+            '2030-9-16': '敬老の日',
+            '2030-9-23': '秋分の日',
+            '2030-10-14': 'スポーツの日',
+            '2030-11-3': '文化の日',
+            '2030-11-4': '振替休日',
+            '2030-11-23': '勤労感謝の日'
         };
 
         const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
@@ -962,9 +1180,114 @@
                 document.getElementById('next-month-title').textContent = 
                     `${nextMonth.getFullYear()}/${nextMonth.getMonth() + 1}`;
             } else {
-                document.getElementById('next-month-title').textContent = 
+                document.getElementById('next-month-title').textContent =
                     `${nextMonth.getMonth() + 1}月`;
             }
+        }
+
+        // ポモドーロタイマー
+        const POMODORO_WORK = 25 * 60;
+        const POMODORO_BREAK = 5 * 60;
+        const POMODORO_LONG_BREAK = 15 * 60;
+        let pomodoroTime = POMODORO_WORK;
+        let pomodoroInterval = null;
+        let pomodoroRunning = false;
+        let pomodoroPhase = 'work';
+        let pomodoroCount = 0;
+        let pomodoroSessionCount = 0;
+
+        function formatPomodoroTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        function updatePomodoroDisplay() {
+            document.getElementById('pomodoro-time').textContent = formatPomodoroTime(pomodoroTime);
+            const phaseEl = document.getElementById('pomodoro-phase');
+            phaseEl.className = 'pomodoro-phase ' + pomodoroPhase.replace('-', '-');
+            if (pomodoroPhase === 'work') {
+                phaseEl.textContent = '作業時間';
+                phaseEl.className = 'pomodoro-phase work';
+            } else if (pomodoroPhase === 'break') {
+                phaseEl.textContent = '休憩';
+                phaseEl.className = 'pomodoro-phase break';
+            } else {
+                phaseEl.textContent = '長休憩';
+                phaseEl.className = 'pomodoro-phase long-break';
+            }
+            document.getElementById('pomodoro-count').textContent = `完了: ${pomodoroCount}`;
+        }
+
+        function togglePomodoro() {
+            const btn = document.getElementById('pomodoro-start');
+            if (pomodoroRunning) {
+                clearInterval(pomodoroInterval);
+                pomodoroRunning = false;
+                btn.textContent = '再開';
+                btn.className = 'pomodoro-btn start';
+            } else {
+                pomodoroRunning = true;
+                btn.textContent = '一時停止';
+                btn.className = 'pomodoro-btn pause';
+                pomodoroInterval = setInterval(() => {
+                    pomodoroTime--;
+                    updatePomodoroDisplay();
+                    if (pomodoroTime <= 0) {
+                        clearInterval(pomodoroInterval);
+                        pomodoroRunning = false;
+                        onPomodoroComplete();
+                    }
+                }, 1000);
+            }
+        }
+
+        function onPomodoroComplete() {
+            if (pomodoroPhase === 'work') {
+                pomodoroCount++;
+                pomodoroSessionCount++;
+                if (pomodoroSessionCount >= 4) {
+                    pomodoroPhase = 'long-break';
+                    pomodoroTime = POMODORO_LONG_BREAK;
+                    pomodoroSessionCount = 0;
+                    showNotification('🎉 4ポモドーロ完了！', '長めの休憩をどうぞ（15分）');
+                } else {
+                    pomodoroPhase = 'break';
+                    pomodoroTime = POMODORO_BREAK;
+                    showNotification('🍅 ポモドーロ完了！', '休憩をどうぞ（5分）');
+                }
+            } else {
+                pomodoroPhase = 'work';
+                pomodoroTime = POMODORO_WORK;
+                showNotification('⏰ 休憩終了！', '次の作業を始めましょう');
+            }
+            updatePomodoroDisplay();
+            document.getElementById('pomodoro-start').textContent = '開始';
+            document.getElementById('pomodoro-start').className = 'pomodoro-btn start';
+        }
+
+        function resetPomodoro() {
+            clearInterval(pomodoroInterval);
+            pomodoroRunning = false;
+            pomodoroPhase = 'work';
+            pomodoroTime = POMODORO_WORK;
+            pomodoroSessionCount = 0;
+            updatePomodoroDisplay();
+            document.getElementById('pomodoro-start').textContent = '開始';
+            document.getElementById('pomodoro-start').className = 'pomodoro-btn start';
+        }
+
+        function showNotification(title, message) {
+            document.getElementById('notification-title').textContent = title;
+            document.getElementById('notification-message').textContent = message;
+            document.getElementById('pomodoro-notification').style.display = 'block';
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification(title, { body: message });
+            }
+        }
+
+        function dismissNotification() {
+            document.getElementById('pomodoro-notification').style.display = 'none';
         }
 
         // 初期化と更新
