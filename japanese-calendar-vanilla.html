@@ -25,11 +25,22 @@
 
         .container {
             width: 100%;
-            max-width: 640px;
+            max-width: 900px;
             padding: 4px;
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 4px;
             overflow: hidden;
+        }
+
+        .container > .panel:first-child {
+            grid-column: 1 / -1;
+        }
+
+        @media (min-width: 600px) {
+            .container {
+                grid-template-columns: 3fr 2fr;
+            }
         }
 
         .panel {
@@ -48,8 +59,70 @@
             padding: 2px 0;
         }
 
+        .time-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* アナログ時計 */
+        .analog-clock {
+            width: 140px;
+            height: 140px;
+            flex-shrink: 0;
+        }
+
+        .analog-clock svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .clock-face {
+            fill: rgba(255, 255, 255, 0.05);
+            stroke: rgba(255, 255, 255, 0.3);
+            stroke-width: 2;
+        }
+
+        .clock-center {
+            fill: #fde047;
+        }
+
+        .hour-hand {
+            stroke: #ffffff;
+            stroke-width: 4;
+            stroke-linecap: round;
+        }
+
+        .minute-hand {
+            stroke: rgba(255, 255, 255, 0.85);
+            stroke-width: 2.5;
+            stroke-linecap: round;
+        }
+
+        .second-hand {
+            stroke: #fde047;
+            stroke-width: 1.5;
+            stroke-linecap: round;
+        }
+
+        .hour-marker {
+            stroke: rgba(255, 255, 255, 0.7);
+            stroke-width: 2.5;
+        }
+
+        .minute-marker {
+            stroke: rgba(255, 255, 255, 0.35);
+            stroke-width: 1.5;
+        }
+
+        .digital-section {
+            text-align: center;
+        }
+
         .time {
-            font-size: 5.4rem;
+            font-size: 4.6rem;
             font-weight: bold;
             font-family: 'Courier New', monospace;
             letter-spacing: 0.1em;
@@ -57,7 +130,7 @@
         }
 
         .date {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             margin-bottom: 1px;
         }
 
@@ -132,12 +205,12 @@
         }
 
         .calendar-header h2 {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: bold;
         }
 
         .calendar-header h3 {
-            font-size: 1.65rem;
+            font-size: 1.4rem;
             font-weight: 600;
         }
 
@@ -155,12 +228,12 @@
             text-align: center;
             font-weight: 600;
             padding: 1px;
-            font-size: 1.2rem;
+            font-size: 1.0rem;
         }
 
         .weekday-header.small {
             padding: 0;
-            font-size: 0.5rem;
+            font-size: 0.4rem;
         }
 
         .weekday-header.sunday {
@@ -180,14 +253,14 @@
             font-weight: 500;
             transition: all 0.3s;
             cursor: pointer;
-            min-height: 32px;
+            min-height: 27px;
             padding: 1px;
         }
 
         .calendar-day.small {
-            min-height: 18px;
+            min-height: 15px;
             padding: 0;
-            font-size: 0.65rem;
+            font-size: 0.55rem;
             border-radius: 2px;
         }
 
@@ -206,11 +279,11 @@
         }
 
         .day-number {
-            font-size: 2.5rem;
+            font-size: 2.1rem;
         }
 
         .day-number.small {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
         }
 
         .day-number.sunday {
@@ -397,7 +470,8 @@
         /* 小さいカレンダーコンテナ */
         .small-calendars-container {
             display: flex;
-            gap: 2px;
+            flex-direction: column;
+            gap: 4px;
         }
 
         .small-calendar {
@@ -412,7 +486,7 @@
         }
 
         .small-calendar h3 {
-            font-size: 1.2rem;
+            font-size: 1.0rem;
         }
 
         /* スクロールバー */
@@ -436,9 +510,36 @@
         <!-- 現在日時表示 -->
         <div class="panel" style="padding: 6px;">
             <div class="time-display">
-                <div class="time" id="current-time"></div>
-                <div class="date" id="current-date"></div>
-                <div class="holiday-today" id="holiday-today"></div>
+                <div class="time-container">
+                    <!-- アナログ時計 -->
+                    <div class="analog-clock">
+                        <svg viewBox="0 0 100 100">
+                            <circle class="clock-face" cx="50" cy="50" r="48"/>
+                            <line class="hour-marker" x1="50" y1="6" x2="50" y2="14"/>
+                            <line class="hour-marker" x1="94" y1="50" x2="86" y2="50"/>
+                            <line class="hour-marker" x1="50" y1="94" x2="50" y2="86"/>
+                            <line class="hour-marker" x1="6" y1="50" x2="14" y2="50"/>
+                            <line class="minute-marker" x1="73" y1="10.2" x2="70" y2="15.4"/>
+                            <line class="minute-marker" x1="89.8" y1="27" x2="84.6" y2="30"/>
+                            <line class="minute-marker" x1="89.8" y1="73" x2="84.6" y2="70"/>
+                            <line class="minute-marker" x1="73" y1="89.8" x2="70" y2="84.6"/>
+                            <line class="minute-marker" x1="27" y1="89.8" x2="30" y2="84.6"/>
+                            <line class="minute-marker" x1="10.2" y1="73" x2="15.4" y2="70"/>
+                            <line class="minute-marker" x1="10.2" y1="27" x2="15.4" y2="30"/>
+                            <line class="minute-marker" x1="27" y1="10.2" x2="30" y2="15.4"/>
+                            <line class="hour-hand" id="hour-hand" x1="50" y1="50" x2="50" y2="26"/>
+                            <line class="minute-hand" id="minute-hand" x1="50" y1="50" x2="50" y2="16"/>
+                            <line class="second-hand" id="second-hand" x1="50" y1="50" x2="50" y2="12"/>
+                            <circle class="clock-center" cx="50" cy="50" r="4"/>
+                        </svg>
+                    </div>
+                    <!-- デジタル時計 -->
+                    <div class="digital-section">
+                        <div class="time" id="current-time"></div>
+                        <div class="date" id="current-date"></div>
+                        <div class="holiday-today" id="holiday-today"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -781,10 +882,33 @@
             updateScheduleList();
         }
 
+        // アナログ時計の針を更新
+        function updateAnalogClock(now) {
+            const hours = now.getHours() % 12;
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+            const hourAngle = (hours * 30) + (minutes * 0.5);
+            const minuteAngle = (minutes * 6) + (seconds * 0.1);
+            const secondAngle = seconds * 6;
+            function getHandPosition(angle, length) {
+                const radian = (angle - 90) * Math.PI / 180;
+                return { x: 50 + length * Math.cos(radian), y: 50 + length * Math.sin(radian) };
+            }
+            const hourPos = getHandPosition(hourAngle, 24);
+            const minutePos = getHandPosition(minuteAngle, 34);
+            const secondPos = getHandPosition(secondAngle, 38);
+            const hourHand = document.getElementById('hour-hand');
+            const minuteHand = document.getElementById('minute-hand');
+            const secondHand = document.getElementById('second-hand');
+            if (hourHand) { hourHand.setAttribute('x2', hourPos.x); hourHand.setAttribute('y2', hourPos.y); }
+            if (minuteHand) { minuteHand.setAttribute('x2', minutePos.x); minuteHand.setAttribute('y2', minutePos.y); }
+            if (secondHand) { secondHand.setAttribute('x2', secondPos.x); secondHand.setAttribute('y2', secondPos.y); }
+        }
+
         // 時刻を更新
         function updateTime() {
             const now = new Date();
-            
+            updateAnalogClock(now);
             // 時刻
             document.getElementById('current-time').textContent = now.toLocaleTimeString('ja-JP', {
                 hour: '2-digit',
