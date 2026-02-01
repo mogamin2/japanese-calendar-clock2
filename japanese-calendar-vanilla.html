@@ -11,6 +11,16 @@
             box-sizing: border-box;
         }
 
+        /* アクセシビリティ: フォーカス表示 */
+        :focus-visible {
+            outline: 2px solid #fde047;
+            outline-offset: 2px;
+        }
+
+        button:focus:not(:focus-visible) {
+            outline: none;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%);
@@ -25,21 +35,50 @@
 
         .container {
             width: 100%;
-            max-width: 900px;
+            max-width: 1100px;
             padding: 4px;
             display: grid;
             grid-template-columns: 1fr;
+            grid-template-rows: auto auto;
             gap: 4px;
             overflow: hidden;
         }
 
-        .container > .panel:first-child {
-            grid-column: 1 / -1;
+        /* デスクトップ: 3カラムレイアウト (180px | 1fr | 180px) */
+        @media (min-width: 768px) {
+            .container {
+                grid-template-columns: 180px 1fr 180px;
+                grid-template-rows: auto auto;
+            }
+
+            /* ポモドーロサイドバー: 左端、2行スパン */
+            .pomodoro-sidebar {
+                grid-column: 1;
+                grid-row: 1 / 3;
+            }
+
+            /* 時計パネル: 中央上 */
+            .time-panel {
+                grid-column: 2;
+                grid-row: 1;
+            }
+
+            /* メインカレンダー: 中央下 */
+            .main-calendar {
+                grid-column: 2;
+                grid-row: 2;
+            }
+
+            /* 小カレンダー: 右端、2行スパン */
+            .small-calendars-panel {
+                grid-column: 3;
+                grid-row: 1 / 3;
+            }
         }
 
-        @media (min-width: 600px) {
-            .container {
-                grid-template-columns: 3fr 2fr;
+        @media (max-width: 767px) {
+            .pomodoro-sidebar {
+                order: -1;
             }
         }
 
@@ -121,75 +160,138 @@
             text-align: center;
         }
 
-        /* ポモドーロタイマー */
-        .pomodoro-panel {
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 8px;
-            padding: 12px;
-            margin-top: 8px;
+        /* ポモドーロタイマー（左サイドバー・円形プログレス付き） */
+        .pomodoro-sidebar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 8px;
+            gap: 10px;
         }
 
         .pomodoro-header {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
-            margin-bottom: 8px;
+            text-align: center;
         }
 
         .pomodoro-title {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
             color: #93c5fd;
+            white-space: nowrap;
         }
 
         .pomodoro-count {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: #fde047;
-        }
-
-        .pomodoro-display {
-            text-align: center;
-            margin-bottom: 8px;
-        }
-
-        .pomodoro-time {
-            font-size: 2.5rem;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-            color: white;
-        }
-
-        .pomodoro-phase {
-            font-size: 0.75rem;
-            color: #94a3b8;
             margin-top: 2px;
         }
 
-        .pomodoro-phase.work {
-            color: #f87171;
+        /* 円形プログレスリング */
+        .pomodoro-ring {
+            position: relative;
+            width: 110px;
+            height: 110px;
         }
 
-        .pomodoro-phase.break {
-            color: #4ade80;
+        .pomodoro-ring svg {
+            transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
         }
 
-        .pomodoro-phase.long-break {
-            color: #60a5fa;
+        .ring-bg {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.1);
+            stroke-width: 8;
+        }
+
+        .ring-progress {
+            fill: none;
+            stroke: #f97316;
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-dasharray: 251;
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 0.5s ease, stroke 0.3s ease;
+        }
+
+        .ring-progress.work { stroke: #f97316; }
+        .ring-progress.break { stroke: #22d3ee; }
+        .ring-progress.long-break { stroke: #a78bfa; }
+
+        .pomodoro-time-inner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .pomodoro-time {
+            font-size: 1.4rem;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: white;
+            line-height: 1;
+        }
+
+        .pomodoro-phase {
+            font-size: 0.65rem;
+            color: #94a3b8;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .pomodoro-phase.work { color: #f97316; }
+        .pomodoro-phase.break { color: #22d3ee; }
+        .pomodoro-phase.long-break { color: #a78bfa; }
+
+        /* 時間選択ボタン */
+        .time-presets {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            width: 100%;
+        }
+
+        .preset-btn {
+            padding: 6px 4px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 4px;
+            background: transparent;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 32px;
+        }
+
+        .preset-btn:hover, .preset-btn.active {
+            background: rgba(249, 115, 22, 0.3);
+            border-color: #f97316;
+            color: white;
         }
 
         .pomodoro-controls {
             display: flex;
-            justify-content: center;
-            gap: 8px;
+            flex-direction: column;
+            gap: 6px;
+            width: 100%;
         }
 
         .pomodoro-btn {
-            padding: 6px 16px;
+            padding: 10px 12px;
+            min-height: 40px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             font-size: 0.8rem;
+            font-weight: 500;
             cursor: pointer;
             transition: all 0.2s;
+            width: 100%;
         }
 
         .pomodoro-btn.start {
@@ -208,8 +310,12 @@
         }
 
         .pomodoro-btn:hover {
-            opacity: 0.85;
+            opacity: 0.9;
             transform: scale(1.02);
+        }
+
+        .pomodoro-btn:active {
+            transform: scale(0.98);
         }
 
         .pomodoro-notification {
@@ -217,13 +323,14 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.9);
-            padding: 24px 48px;
-            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.95);
+            padding: 28px 52px;
+            border-radius: 16px;
             text-align: center;
             z-index: 1000;
             display: none;
             animation: pulse 0.5s ease-in-out infinite alternate;
+            border: 2px solid rgba(253, 224, 71, 0.3);
         }
 
         @keyframes pulse {
@@ -271,52 +378,6 @@
             margin-top: 1px;
         }
 
-        /* カウントダウン表示 */
-        .countdown-section {
-            margin-top: 4px;
-            padding: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 6px;
-        }
-
-        .next-meeting-title {
-            font-size: 0.75rem;
-            color: #93c5fd;
-            margin-bottom: 2px;
-            display: none;
-        }
-
-        .countdown-time {
-            font-size: 1.125rem;
-            font-weight: bold;
-            color: #fde047;
-            margin-bottom: 2px;
-            display: none;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 3px;
-            overflow: hidden;
-            margin-bottom: 2px;
-            display: none;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #3b82f6, #60a5fa);
-            transition: width 0.3s ease;
-            display: none;
-        }
-
-        .meeting-info {
-            font-size: 0.7rem;
-            color: #cbd5e1;
-            display: none;
-        }
-
         /* カレンダー */
         .calendar-header {
             display: flex;
@@ -331,7 +392,7 @@
         }
 
         .calendar-header h3 {
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             font-weight: 600;
         }
 
@@ -353,8 +414,8 @@
         }
 
         .weekday-header.small {
-            padding: 0;
-            font-size: 0.4rem;
+            padding: 1px;
+            font-size: 0.6rem;
         }
 
         .weekday-header.sunday {
@@ -372,21 +433,26 @@
             justify-content: center;
             border-radius: 4px;
             font-weight: 500;
-            transition: all 0.3s;
+            transition: all 0.2s;
             cursor: pointer;
-            min-height: 27px;
-            padding: 1px;
+            min-height: 32px;
+            padding: 2px;
         }
 
         .calendar-day.small {
-            min-height: 15px;
-            padding: 0;
-            font-size: 0.55rem;
+            min-height: 20px;
+            padding: 1px;
+            font-size: 0.65rem;
             border-radius: 2px;
         }
 
         .calendar-day:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .calendar-day:focus {
+            outline: 2px solid #fde047;
+            outline-offset: 1px;
         }
 
         .calendar-day.other-month {
@@ -404,7 +470,7 @@
         }
 
         .day-number.small {
-            font-size: 1.3rem;
+            font-size: 1.1rem;
         }
 
         .day-number.sunday {
@@ -426,152 +492,6 @@
             text-align: center;
             line-height: 1;
             margin-top: 1px;
-        }
-
-        /* 本日の予定パネル */
-        .schedule-panel {
-            background: rgba(0, 0, 0, 0.25);
-            padding: 8px;
-            display: none;
- 
-        }
-
-        .schedule-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
-        }
-
-        .schedule-title {
-            font-size: 0.875rem;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .add-schedule-btn {
-            background: #3b82f6;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .add-schedule-btn:hover {
-            background: #2563eb;
-        }
-
-        .schedule-list {
-            max-height: 120px;
-            overflow-y: auto;
-        }
-
-        .schedule-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 6px 8px;
-            margin-bottom: 4px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 4px;
-            font-size: 0.875rem;
-        }
-
-        .schedule-item.past {
-            opacity: 0.5;
-            text-decoration: line-through;
-        }
-
-        .schedule-item.next {
-            background: rgba(59, 130, 246, 0.2);
-            border: 1px solid rgba(59, 130, 246, 0.5);
-        }
-
-        .schedule-time {
-            font-weight: bold;
-            color: #93c5fd;
-            margin-right: 8px;
-            font-size: 0.9rem;
-        }
-
-        .schedule-title-text {
-            flex: 1;
-        }
-
-        .delete-btn {
-            background: none;
-            border: none;
-            color: #ef4444;
-            cursor: pointer;
-            padding: 2px 4px;
-            font-size: 0.875rem;
-        }
-
-        .delete-btn:hover {
-            color: #f87171;
-        }
-
-        /* 予定追加フォーム */
-        .add-schedule-form {
-            display: none;
-            padding: 6px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 4px;
-            margin-bottom: 6px;
-        }
-
-        .form-row {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 6px;
-        }
-
-        .form-input {
-            flex: 1;
-            padding: 4px 6px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
-            color: white;
-            font-size: 0.8rem;
-        }
-
-        .form-input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        .form-buttons {
-            display: flex;
-            gap: 4px;
-        }
-
-        .form-btn {
-            flex: 1;
-            padding: 4px;
-            border: none;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-
-        .form-btn:hover {
-            opacity: 0.8;
-        }
-
-        .save-btn {
-            background: #22c55e;
-            color: white;
-        }
-
-        .cancel-btn {
-            background: #64748b;
-            color: white;
         }
 
         /* メインカレンダー */
@@ -598,29 +518,29 @@
         .small-calendar {
             flex: 1;
             background: rgba(0, 0, 0, 0.2);
-            padding: 3px;
+            padding: 4px;
             border-radius: 6px;
         }
 
         .small-calendar .calendar-header {
-            margin-bottom: 1px;
+            margin-bottom: 2px;
         }
 
         .small-calendar h3 {
-            font-size: 1.0rem;
+            font-size: 0.9rem;
         }
 
         /* スクロールバー */
-        .schedule-list::-webkit-scrollbar {
+        ::-webkit-scrollbar {
             width: 4px;
         }
 
-        .schedule-list::-webkit-scrollbar-track {
+        ::-webkit-scrollbar-track {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 2px;
         }
 
-        .schedule-list::-webkit-scrollbar-thumb {
+        ::-webkit-scrollbar-thumb {
             background: rgba(255, 255, 255, 0.3);
             border-radius: 2px;
         }
@@ -628,8 +548,38 @@
 </head>
 <body>
     <div class="container">
-        <!-- 現在日時表示 -->
-        <div class="panel" style="padding: 6px;">
+        <!-- ポモドーロサイドバー（左端・2行スパン） -->
+        <div class="panel pomodoro-sidebar">
+            <div class="pomodoro-header">
+                <span class="pomodoro-title">🍅 ポモドーロ</span>
+                <span class="pomodoro-count" id="pomodoro-count">完了: 0</span>
+            </div>
+            <!-- 円形プログレスリング -->
+            <div class="pomodoro-ring">
+                <svg viewBox="0 0 100 100">
+                    <circle class="ring-bg" cx="50" cy="50" r="40"/>
+                    <circle class="ring-progress work" id="ring-progress" cx="50" cy="50" r="40"/>
+                </svg>
+                <div class="pomodoro-time-inner">
+                    <div class="pomodoro-time" id="pomodoro-time">25:00</div>
+                    <div class="pomodoro-phase work" id="pomodoro-phase">🔥 作業</div>
+                </div>
+            </div>
+            <!-- 時間選択ボタン -->
+            <div class="time-presets">
+                <button class="preset-btn" onclick="setPresetTime(15)">15分</button>
+                <button class="preset-btn active" onclick="setPresetTime(25)">25分</button>
+                <button class="preset-btn" onclick="setPresetTime(45)">45分</button>
+                <button class="preset-btn" onclick="setPresetTime(60)">60分</button>
+            </div>
+            <div class="pomodoro-controls">
+                <button class="pomodoro-btn start" id="pomodoro-start" onclick="togglePomodoro()">開始</button>
+                <button class="pomodoro-btn reset" onclick="resetPomodoro()">リセット</button>
+            </div>
+        </div>
+
+        <!-- 現在日時表示（中央上） -->
+        <div class="panel time-panel" style="padding: 6px;">
             <div class="time-display">
                 <div class="time-container">
                     <!-- アナログ時計 -->
@@ -661,21 +611,6 @@
                         <div class="holiday-today" id="holiday-today"></div>
                     </div>
                 </div>
-                <!-- ポモドーロタイマー -->
-                <div class="pomodoro-panel">
-                    <div class="pomodoro-header">
-                        <span class="pomodoro-title">🍅 ポモドーロ</span>
-                        <span class="pomodoro-count" id="pomodoro-count">完了: 0</span>
-                    </div>
-                    <div class="pomodoro-display">
-                        <div class="pomodoro-time" id="pomodoro-time">25:00</div>
-                        <div class="pomodoro-phase work" id="pomodoro-phase">作業時間</div>
-                    </div>
-                    <div class="pomodoro-controls">
-                        <button class="pomodoro-btn start" id="pomodoro-start" onclick="togglePomodoro()">開始</button>
-                        <button class="pomodoro-btn reset" onclick="resetPomodoro()">リセット</button>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -686,7 +621,7 @@
             <button class="pomodoro-btn start" onclick="dismissNotification()">OK</button>
         </div>
 
-        <!-- メインカレンダー -->
+        <!-- メインカレンダー（中央下） -->
         <div class="panel main-calendar" style="padding: 6px;">
             <div class="calendar-header">
                 <h2 id="current-month-title"></h2>
@@ -694,8 +629,8 @@
             <div id="current-calendar"></div>
         </div>
 
-        <!-- 先月・翌月カレンダー -->
-        <div class="panel" style="padding: 3px;">
+        <!-- 先月・翌月カレンダー（右端・2行スパン） -->
+        <div class="panel small-calendars-panel" style="padding: 4px;">
             <div class="small-calendars-container">
                 <div class="small-calendar">
                     <div class="calendar-header">
@@ -835,33 +770,6 @@
         const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
         const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
 
-        // 曜日別定例会議
-        const weeklyMeetings = {
-            '月': [
-                {time: '09:00', title: '週次定例会'},
-                {time: '14:00', title: '営業会議'}
-            ],
-            '火': [
-                {time: '10:30', title: 'プロジェクト進捗'},
-                {time: '16:00', title: 'チームMTG'}
-            ],
-            '水': [
-                {time: '13:00', title: '部門会議'}
-            ],
-            '木': [
-                {time: '11:00', title: '企画レビュー'},
-                {time: '15:30', title: '開発定例'}
-            ],
-            '金': [
-                {time: '10:00', title: '週次振り返り'},
-                {time: '17:00', title: '週報作成'}
-            ]
-        };
-
-        // 本日の予定を保存（メモリ内のみ）
-        let todaySchedules = [];
-        let customSchedules = []; // 手動追加した予定
-
         // 和暦を計算
         function getJapaneseEra(date) {
             const year = date.getFullYear();
@@ -908,7 +816,7 @@
                 console.error('コンテナが見つかりません:', containerId);
                 return;
             }
-            
+
             const days = generateCalendarDays(targetDate);
             const today = new Date();
             const currentMonth = targetDate.getMonth();
@@ -926,9 +834,9 @@
             // 日付
             days.forEach(date => {
                 const isInMonth = date.getMonth() === currentMonth;
-                const isToday = isInMonth && 
-                    date.getDate() === today.getDate() && 
-                    date.getMonth() === today.getMonth() && 
+                const isToday = isInMonth &&
+                    date.getDate() === today.getDate() &&
+                    date.getMonth() === today.getMonth() &&
                     date.getFullYear() === today.getFullYear();
                 const dayOfWeek = date.getDay();
                 const dateKey = formatDateKey(date);
@@ -957,147 +865,6 @@
 
             html += '</div>';
             container.innerHTML = html;
-        }
-
-        // 予定の初期化
-        function initializeSchedules() {
-            const now = new Date();
-            const weekday = weekDays[now.getDay()];
-            
-            // 曜日別定例会議を取得
-            const weeklySchedules = weeklyMeetings[weekday] || [];
-            
-            // 定例会議とカスタム予定を結合
-            todaySchedules = [...weeklySchedules, ...customSchedules];
-            
-            // 時刻順にソート
-            todaySchedules.sort((a, b) => a.time.localeCompare(b.time));
-            
-            updateScheduleList();
-        }
-
-        // 予定リストの更新
-        function updateScheduleList() {
-            const list = document.getElementById('schedule-list');
-            const now = new Date();
-            const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-            
-            let html = '';
-            let nextSchedule = null;
-            
-            todaySchedules.forEach((schedule, index) => {
-                const isPast = schedule.time < currentTime;
-                const isNext = !isPast && !nextSchedule;
-                
-                if (isNext) {
-                    nextSchedule = schedule;
-                }
-                
-                let className = 'schedule-item';
-                if (isPast) className += ' past';
-                if (isNext) className += ' next';
-                
-                html += `
-                    <div class="${className}">
-                        <span class="schedule-time">${schedule.time}</span>
-                        <span class="schedule-title-text">${schedule.title}</span>
-                        <button class="delete-btn" onclick="deleteSchedule(${index})">×</button>
-                    </div>
-                `;
-            });
-            
-            if (todaySchedules.length === 0) {
-                html = '<div class="schedule-item" style="text-align: center; opacity: 0.5; font-size: 0.8rem;">予定がありません</div>';
-            }
-            
-            // カウントダウンの更新
-            updateCountdown(nextSchedule);
-        }
-
-        // カウントダウンの更新
-        function updateCountdown(nextSchedule) {
-            const countdownSection = document.getElementById('countdown-section');
-            
-            if (!nextSchedule) {
-                return;
-            }
-            
-          
-            const now = new Date();
-            const [hours, minutes] = nextSchedule.time.split(':').map(Number);
-            const meetingTime = new Date(now);
-            meetingTime.setHours(hours, minutes, 0, 0);
-            
-            const diff = meetingTime - now;
-            
-            if (diff <= 0) {
-                countdownSection.style.display = 'none';
-                return;
-            }
-            
-            const totalMinutes = Math.floor(diff / 60000);
-            const hours_ = Math.floor(totalMinutes / 60);
-            const minutes_ = totalMinutes % 60;
-            const seconds = Math.floor((diff % 60000) / 1000);
-            
-        }
-
-        // 予定追加フォームの表示切替
-        function toggleAddForm() {
-            const form = document.getElementById('add-schedule-form');
-            form.style.display = form.style.display === 'none' ? 'block' : 'none';
-            
-            if (form.style.display === 'block') {
-                document.getElementById('schedule-time').focus();
-            }
-        }
-
-        // 予定の追加
-        function addSchedule() {
-            const timeInput = document.getElementById('schedule-time');
-            const titleInput = document.getElementById('schedule-title');
-            
-            if (!timeInput.value || !titleInput.value) {
-                alert('時刻と予定名を入力してください');
-                return;
-            }
-            
-            const newSchedule = {
-                time: timeInput.value,
-                title: titleInput.value
-            };
-            
-            // カスタム予定に追加
-            customSchedules.push(newSchedule);
-            
-            // リストに追加
-            todaySchedules.push(newSchedule);
-            todaySchedules.sort((a, b) => a.time.localeCompare(b.time));
-            
-            // UIリセット
-            timeInput.value = '';
-            titleInput.value = '';
-            toggleAddForm();
-            
-            updateScheduleList();
-        }
-
-        // 予定の削除
-        function deleteSchedule(index) {
-            const schedule = todaySchedules[index];
-            
-            // カスタム予定から削除
-            const customIndex = customSchedules.findIndex(s => 
-                s.time === schedule.time && s.title === schedule.title
-            );
-            if (customIndex !== -1) {
-                customSchedules.splice(customIndex, 1);
-            }
-            
-            // 全体リストから削除
-            todaySchedules.splice(index, 1);
-            
-            updateScheduleList();
         }
 
         // アナログ時計の針を更新
@@ -1140,7 +907,7 @@
             const month = now.getMonth() + 1;
             const date = now.getDate();
             const weekday = weekDays[now.getDay()];
-            
+
             dateElement.innerHTML = `<span class="japanese-era">（${getJapaneseEra(now)}）</span>${year}年${month}月${date}日<span class="weekday">（${weekday}曜日）</span>`;
 
             // 今日の祝日
@@ -1152,9 +919,6 @@
             } else {
                 holidayElement.textContent = '';
             }
-
-            // 予定リストの更新（過去の予定をグレーアウトするため）
-            updateScheduleList();
         }
 
         // カレンダーのタイトルを更新
@@ -1162,22 +926,22 @@
             const now = new Date();
             const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
             const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-            
-            document.getElementById('current-month-title').textContent = 
+
+            document.getElementById('current-month-title').textContent =
                 `${now.getFullYear()}年 ${months[now.getMonth()]}`;
-            
+
             // 先月の表示（年が異なる場合は年も表示）
             if (prevMonth.getFullYear() !== now.getFullYear()) {
-                document.getElementById('prev-month-title').textContent = 
+                document.getElementById('prev-month-title').textContent =
                     `${prevMonth.getFullYear()}/${prevMonth.getMonth() + 1}`;
             } else {
-                document.getElementById('prev-month-title').textContent = 
+                document.getElementById('prev-month-title').textContent =
                     `${prevMonth.getMonth() + 1}月`;
             }
-            
+
             // 翌月の表示（年が異なる場合は年も表示）
             if (nextMonth.getFullYear() !== now.getFullYear()) {
-                document.getElementById('next-month-title').textContent = 
+                document.getElementById('next-month-title').textContent =
                     `${nextMonth.getFullYear()}/${nextMonth.getMonth() + 1}`;
             } else {
                 document.getElementById('next-month-title').textContent =
@@ -1186,15 +950,51 @@
         }
 
         // ポモドーロタイマー
-        const POMODORO_WORK = 25 * 60;
+        let POMODORO_WORK = 25 * 60;
         const POMODORO_BREAK = 5 * 60;
         const POMODORO_LONG_BREAK = 15 * 60;
         let pomodoroTime = POMODORO_WORK;
+        let pomodoroTotalTime = POMODORO_WORK;
         let pomodoroInterval = null;
         let pomodoroRunning = false;
         let pomodoroPhase = 'work';
         let pomodoroCount = 0;
         let pomodoroSessionCount = 0;
+
+        // Web Audio API でアラート音を生成
+        let audioContext = null;
+        function playAlertSound() {
+            try {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1);
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.2);
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+            } catch (e) {
+                console.log('Audio not supported:', e);
+            }
+        }
+
+        // 時間プリセット選択
+        function setPresetTime(minutes) {
+            if (pomodoroRunning) return;
+            POMODORO_WORK = minutes * 60;
+            pomodoroTime = POMODORO_WORK;
+            pomodoroTotalTime = POMODORO_WORK;
+            pomodoroPhase = 'work';
+            updatePomodoroDisplay();
+            document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
 
         function formatPomodoroTime(seconds) {
             const m = Math.floor(seconds / 60);
@@ -1205,17 +1005,32 @@
         function updatePomodoroDisplay() {
             document.getElementById('pomodoro-time').textContent = formatPomodoroTime(pomodoroTime);
             const phaseEl = document.getElementById('pomodoro-phase');
-            phaseEl.className = 'pomodoro-phase ' + pomodoroPhase.replace('-', '-');
+            const ringEl = document.getElementById('ring-progress');
+
+            // フェーズ表示とカラー
             if (pomodoroPhase === 'work') {
-                phaseEl.textContent = '作業時間';
+                phaseEl.textContent = '🔥 作業';
                 phaseEl.className = 'pomodoro-phase work';
+                if (ringEl) ringEl.className = 'ring-progress work';
             } else if (pomodoroPhase === 'break') {
-                phaseEl.textContent = '休憩';
+                phaseEl.textContent = '☕ 休憩';
                 phaseEl.className = 'pomodoro-phase break';
+                if (ringEl) ringEl.className = 'ring-progress break';
             } else {
-                phaseEl.textContent = '長休憩';
+                phaseEl.textContent = '🌴 長休憩';
                 phaseEl.className = 'pomodoro-phase long-break';
+                if (ringEl) ringEl.className = 'ring-progress long-break';
             }
+
+            // 円形プログレスリングの更新
+            if (ringEl) {
+                const circumference = 2 * Math.PI * 40; // r=40
+                const progress = pomodoroTime / pomodoroTotalTime;
+                const offset = circumference * (1 - progress);
+                ringEl.style.strokeDasharray = circumference;
+                ringEl.style.strokeDashoffset = offset;
+            }
+
             document.getElementById('pomodoro-count').textContent = `完了: ${pomodoroCount}`;
         }
 
@@ -1249,16 +1064,19 @@
                 if (pomodoroSessionCount >= 4) {
                     pomodoroPhase = 'long-break';
                     pomodoroTime = POMODORO_LONG_BREAK;
+                    pomodoroTotalTime = POMODORO_LONG_BREAK;
                     pomodoroSessionCount = 0;
                     showNotification('🎉 4ポモドーロ完了！', '長めの休憩をどうぞ（15分）');
                 } else {
                     pomodoroPhase = 'break';
                     pomodoroTime = POMODORO_BREAK;
+                    pomodoroTotalTime = POMODORO_BREAK;
                     showNotification('🍅 ポモドーロ完了！', '休憩をどうぞ（5分）');
                 }
             } else {
                 pomodoroPhase = 'work';
                 pomodoroTime = POMODORO_WORK;
+                pomodoroTotalTime = POMODORO_WORK;
                 showNotification('⏰ 休憩終了！', '次の作業を始めましょう');
             }
             updatePomodoroDisplay();
@@ -1271,6 +1089,7 @@
             pomodoroRunning = false;
             pomodoroPhase = 'work';
             pomodoroTime = POMODORO_WORK;
+            pomodoroTotalTime = POMODORO_WORK;
             pomodoroSessionCount = 0;
             updatePomodoroDisplay();
             document.getElementById('pomodoro-start').textContent = '開始';
@@ -1278,6 +1097,7 @@
         }
 
         function showNotification(title, message) {
+            playAlertSound();
             document.getElementById('notification-title').textContent = title;
             document.getElementById('notification-message').textContent = message;
             document.getElementById('pomodoro-notification').style.display = 'block';
@@ -1295,38 +1115,36 @@
             // 現在の日時を取得
             const now = new Date();
             let currentDay = now.getDate();
-            
+
             updateTime();
             updateCalendarTitles();
-            initializeSchedules();
-            
+            updatePomodoroDisplay();
+
             const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
             const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-            
+
             renderCalendar('current-calendar', now, true);
             renderCalendar('prev-calendar', prevMonth, false);
             renderCalendar('next-calendar', nextMonth, false);
-            
+
             // 毎秒時刻を更新
             setInterval(updateTime, 1000);
-            
+
             // 毎分カレンダーを更新（日付が変わった時のため）
             setInterval(() => {
                 const currentNow = new Date();
                 const currentPrevMonth = new Date(currentNow.getFullYear(), currentNow.getMonth() - 1, 1);
                 const currentNextMonth = new Date(currentNow.getFullYear(), currentNow.getMonth() + 1, 1);
-                
-                // 日付が変わったらカスタム予定をリセット
+
+                // 日付が変わったらリセット
                 if (currentNow.getDate() !== currentDay) {
                     currentDay = currentNow.getDate();
-                    customSchedules = [];
                 }
-                
+
                 updateCalendarTitles();
                 renderCalendar('current-calendar', currentNow, true);
                 renderCalendar('prev-calendar', currentPrevMonth, false);
                 renderCalendar('next-calendar', currentNextMonth, false);
-                initializeSchedules();
             }, 60000);
         }
 
